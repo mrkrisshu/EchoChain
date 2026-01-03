@@ -14,14 +14,21 @@ interface Props {
 
 export function SolanaProvider({ children }: Props) {
     // Environment-aware network selection
-    // - Production (Vercel): Uses Devnet
-    // - Local development: Uses Localhost if NEXT_PUBLIC_SOLANA_NETWORK is not set
+    // - If NEXT_PUBLIC_SOLANA_NETWORK is set, use that
+    // - Otherwise: Devnet in browser (production), Localhost only if explicitly set
     const endpoint = useMemo(() => {
-        const network = process.env.NEXT_PUBLIC_SOLANA_NETWORK || 'localhost';
+        const network = process.env.NEXT_PUBLIC_SOLANA_NETWORK;
+
+        // If explicitly set, use that network
         if (network === 'localhost') {
             return 'http://127.0.0.1:8899';
         }
-        return clusterApiUrl(network as 'devnet' | 'mainnet-beta');
+        if (network === 'mainnet-beta' || network === 'devnet') {
+            return clusterApiUrl(network);
+        }
+
+        // Default to Devnet for production (when no env var is set)
+        return clusterApiUrl('devnet');
     }, []);
 
     const wallets = useMemo(
