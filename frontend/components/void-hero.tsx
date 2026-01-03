@@ -149,18 +149,7 @@ function Navbar({ links }: { links: Array<{ name: string; href: string }> }) {
         ))}
       </ul>
 
-      <ul className="md:hidden flex flex-col gap-3 items-end">
-        {links.map((link) => (
-          <li key={link.name}>
-            <a
-              href={link.href}
-              className="text-xs font-light tracking-[0.15em] mix-blend-difference text-white hover:opacity-70 transition-opacity duration-300"
-            >
-              {link.name}
-            </a>
-          </li>
-        ))}
-      </ul>
+      {/* Mobile nav hidden - using main header instead */}
     </nav>
   );
 }
