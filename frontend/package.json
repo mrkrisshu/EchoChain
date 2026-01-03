@@ -9,6 +9,7 @@
         "lint": "next lint"
     },
     "dependencies": {
+        "@coral-xyz/anchor": "^0.32.1",
         "@radix-ui/react-avatar": "^1.1.11",
         "@react-three/csg": "^3.2.0",
         "@react-three/drei": "^9.99.5",
