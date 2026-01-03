@@ -357,7 +357,7 @@ export default function HomePage() {
                     fontSize: '14px',
                     textTransform: 'uppercase',
                     letterSpacing: '2px',
-                    marginBottom: '32px',
+                    marginBottom: '40px',
                 }}>
                     Built for
                 </p>
@@ -365,50 +365,27 @@ export default function HomePage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '48px',
+                    gap: '60px',
                     flexWrap: 'wrap',
-                    opacity: 0.7,
                 }}>
                     {/* Solana */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <svg width="28" height="28" viewBox="0 0 128 128" fill="url(#solana-gradient)">
-                            <defs>
-                                <linearGradient id="solana-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stopColor="#00FFA3" />
-                                    <stop offset="100%" stopColor="#DC1FFF" />
-                                </linearGradient>
-                            </defs>
-                            <path d="M93.5 42H25.3c-1 0-2 .4-2.7 1.2l-8.8 9.5c-1.5 1.6-.3 4.3 1.9 4.3h68.2c1 0 2-.4 2.7-1.2l8.8-9.5c1.5-1.6.3-4.3-1.9-4.3zm0 35H25.3c-1 0-2 .4-2.7 1.2l-8.8 9.5c-1.5 1.6-.3 4.3 1.9 4.3h68.2c1 0 2-.4 2.7-1.2l8.8-9.5c1.5-1.6.3-4.3-1.9-4.3zm-77.7-17.5l8.8-9.5c.7-.8 1.7-1.2 2.7-1.2h68.2c2.2 0 3.4 2.7 1.9 4.3l-8.8 9.5c-.7.8-1.7 1.2-2.7 1.2H17.7c-2.2 0-3.4-2.7-1.9-4.3z" />
-                        </svg>
-                        <span style={{ fontSize: '20px', fontWeight: 700, color: 'white' }}>SOLANA</span>
-                    </div>
-                    {/* Phantom */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{
-                            width: '28px',
-                            height: '28px',
-                            background: 'linear-gradient(135deg, #AB9FF2, #594DBB)',
-                            borderRadius: '6px',
-                        }} />
-                        <span style={{ fontSize: '20px', fontWeight: 700, color: 'white' }}>Phantom</span>
-                    </div>
-                    {/* Vercel */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <svg width="24" height="24" viewBox="0 0 116 100" fill="white">
-                            <path d="M57.5 0L115 100H0L57.5 0z" />
-                        </svg>
-                        <span style={{ fontSize: '20px', fontWeight: 700, color: 'white' }}>Vercel</span>
-                    </div>
-                    {/* Supabase */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{
-                            width: '28px',
-                            height: '28px',
-                            background: '#3ECF8E',
-                            borderRadius: '6px',
-                        }} />
-                        <span style={{ fontSize: '20px', fontWeight: 700, color: 'white' }}>Supabase</span>
-                    </div>
+                    <img
+                        src="/partners/solana.png"
+                        alt="Solana"
+                        style={{ height: '40px', objectFit: 'contain' }}
+                    />
+                    {/* NOVA */}
+                    <img
+                        src="/partners/nova.png"
+                        alt="NOVA Consortium"
+                        style={{ height: '40px', objectFit: 'contain' }}
+                    />
+                    {/* Decentra.cloud */}
+                    <img
+                        src="/partners/decentra.png"
+                        alt="Decentra.cloud"
+                        style={{ height: '40px', objectFit: 'contain' }}
+                    />
                 </div>
             </section>
         </main>
