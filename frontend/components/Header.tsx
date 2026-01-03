@@ -40,7 +40,24 @@ export function Header() {
                     ))}
                 </nav>
 
-                <WalletMultiButton />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    {/* Network Badge */}
+                    <span style={{
+                        background: 'rgba(34, 197, 94, 0.2)',
+                        color: '#22c55e',
+                        padding: '6px 12px',
+                        borderRadius: '50px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                    }}>
+                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e' }} />
+                        Devnet
+                    </span>
+                    <WalletMultiButton />
+                </div>
             </div>
         </header>
     );

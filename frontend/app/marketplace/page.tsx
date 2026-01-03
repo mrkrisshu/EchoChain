@@ -66,7 +66,7 @@ export default function MarketplacePage() {
     const [expandedCard, setExpandedCard] = useState<string | null>(null);
     const [allVoices, setAllVoices] = useState<Voice[]>(DEMO_VOICES);
     const [isLoading, setIsLoading] = useState(true);
-    const [successInfo, setSuccessInfo] = useState<{ name: string; signature: string } | null>(null);
+    const [successInfo, setSuccessInfo] = useState<{ name: string; signature: string; voiceId: string } | null>(null);
 
     // Fetch minted voices from Supabase
     useEffect(() => {
@@ -107,7 +107,7 @@ export default function MarketplacePage() {
             await connection.confirmTransaction(signature, 'confirmed');
 
             setPurchasedVoices(new Set(Array.from(purchasedVoices).concat(voice.mint)));
-            setSuccessInfo({ name: voice.name, signature });
+            setSuccessInfo({ name: voice.name, signature, voiceId: voice.mint });
 
         } catch (error) {
             console.error('Purchase failed:', error);
@@ -172,13 +172,22 @@ export default function MarketplacePage() {
                                 {successInfo.signature.slice(0, 20)}...{successInfo.signature.slice(-20)}
                             </a>
                         </div>
-                        <button
-                            onClick={() => setSuccessInfo(null)}
-                            className="btn btn-primary"
-                            style={{ padding: '16px 48px', fontSize: '16px' }}
-                        >
-                            Continue Shopping
-                        </button>
+                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                            <a
+                                href={`/license/${successInfo.voiceId}`}
+                                className="btn btn-secondary"
+                                style={{ padding: '16px 24px', fontSize: '14px', textDecoration: 'none' }}
+                            >
+                                🔐 View License Proof
+                            </a>
+                            <button
+                                onClick={() => setSuccessInfo(null)}
+                                className="btn btn-primary"
+                                style={{ padding: '16px 24px', fontSize: '14px' }}
+                            >
+                                Continue Shopping
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

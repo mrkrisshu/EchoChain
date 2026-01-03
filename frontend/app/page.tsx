@@ -173,6 +173,93 @@ export default function HomePage() {
                 className="dark"
             />
 
+            {/* Why This Matters Section */}
+            <section className="container" style={{ padding: '80px 24px' }}>
+                <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+                    <h2 style={{
+                        fontSize: '32px',
+                        fontWeight: 300,
+                        marginBottom: '16px',
+                        color: 'white',
+                    }}>
+                        Why This Matters
+                    </h2>
+                    <p style={{ color: '#888', maxWidth: '600px', margin: '0 auto' }}>
+                        The voice AI industry has a consent problem. EchoChain fixes it.
+                    </p>
+                </div>
+
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                    gap: '24px',
+                    maxWidth: '900px',
+                    margin: '0 auto',
+                }}>
+                    {/* The Problem */}
+                    <div style={{
+                        background: 'rgba(239, 68, 68, 0.1)',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        borderRadius: '16px',
+                        padding: '32px',
+                    }}>
+                        <div style={{ fontSize: '32px', marginBottom: '16px' }}>❌</div>
+                        <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px', color: '#ef4444' }}>
+                            Today&apos;s Problem
+                        </h3>
+                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <li style={{ color: '#aaa', fontSize: '14px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                                <span style={{ color: '#ef4444' }}>•</span>
+                                Voices are scraped without consent
+                            </li>
+                            <li style={{ color: '#aaa', fontSize: '14px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                                <span style={{ color: '#ef4444' }}>•</span>
+                                No way to prove voice ownership
+                            </li>
+                            <li style={{ color: '#aaa', fontSize: '14px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                                <span style={{ color: '#ef4444' }}>•</span>
+                                Creators earn nothing from AI clones
+                            </li>
+                            <li style={{ color: '#aaa', fontSize: '14px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                                <span style={{ color: '#ef4444' }}>•</span>
+                                No usage tracking or limits
+                            </li>
+                        </ul>
+                    </div>
+
+                    {/* The Solution */}
+                    <div style={{
+                        background: 'rgba(34, 197, 94, 0.1)',
+                        border: '1px solid rgba(34, 197, 94, 0.3)',
+                        borderRadius: '16px',
+                        padding: '32px',
+                    }}>
+                        <div style={{ fontSize: '32px', marginBottom: '16px' }}>✅</div>
+                        <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px', color: '#22c55e' }}>
+                            EchoChain Solution
+                        </h3>
+                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <li style={{ color: '#aaa', fontSize: '14px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                                <span style={{ color: '#22c55e' }}>✓</span>
+                                Voice NFTs prove ownership on-chain
+                            </li>
+                            <li style={{ color: '#aaa', fontSize: '14px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                                <span style={{ color: '#22c55e' }}>✓</span>
+                                License terms are transparent & enforceable
+                            </li>
+                            <li style={{ color: '#aaa', fontSize: '14px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                                <span style={{ color: '#22c55e' }}>✓</span>
+                                Creators get paid per use in SOL
+                            </li>
+                            <li style={{ color: '#aaa', fontSize: '14px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                                <span style={{ color: '#22c55e' }}>✓</span>
+                                Usage is auditable and limited
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
             {/* AI Gatekeeper Section */}
             <section className="container" style={{ padding: '80px 24px' }}>
                 <div style={{
