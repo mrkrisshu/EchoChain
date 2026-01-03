@@ -142,8 +142,8 @@ export default function MarketplacePage() {
                     backdropFilter: 'blur(8px)',
                 }}>
                     <div style={{
-                        background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)',
-                        border: '1px solid rgba(139, 92, 246, 0.3)',
+                        background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)',
+                        border: '1px solid rgba(6, 182, 212, 0.3)',
                         borderRadius: '24px',
                         padding: '48px',
                         maxWidth: '480px',

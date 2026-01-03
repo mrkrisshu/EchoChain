@@ -69,7 +69,7 @@ export default function LicenseProofPage() {
                 {/* Header Badge */}
                 <div style={{ textAlign: 'center', marginBottom: '32px' }}>
                     <span style={{
-                        background: 'linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%)',
+                        background: 'linear-gradient(135deg, #06b6d4 0%, #22c55e 100%)',
                         padding: '8px 24px',
                         borderRadius: '50px',
                         fontSize: '14px',
@@ -81,8 +81,8 @@ export default function LicenseProofPage() {
 
                 {/* License Card */}
                 <div style={{
-                    background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%)',
-                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                    background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(34, 197, 94, 0.1) 100%)',
+                    border: '1px solid rgba(6, 182, 212, 0.3)',
                     borderRadius: '24px',
                     padding: '32px',
                 }}>
@@ -127,7 +127,7 @@ export default function LicenseProofPage() {
                             overflow: 'hidden',
                         }}>
                             <div style={{
-                                background: 'linear-gradient(90deg, #8b5cf6, #06b6d4)',
+                                background: 'linear-gradient(90deg, #06b6d4, #22c55e)',
                                 height: '100%',
                                 width: `${usagePercent}%`,
                                 borderRadius: '50px',
@@ -183,7 +183,7 @@ export default function LicenseProofPage() {
                     <p style={{ fontSize: '12px', color: 'var(--muted)' }}>
                         Verified on <strong>Solana</strong> • Powered by <strong>EchoChain</strong>
                     </p>
-                    <Link href="/marketplace" style={{ color: '#8b5cf6', fontSize: '14px' }}>
+                    <Link href="/marketplace" style={{ color: '#06b6d4', fontSize: '14px' }}>
                         ← Back to Marketplace
                     </Link>
                 </div>

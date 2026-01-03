@@ -91,8 +91,8 @@ export default function HomePage() {
                                     fontSize: '16px',
                                     fontWeight: 600,
                                     borderRadius: '12px',
-                                    background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
-                                    boxShadow: '0 4px 20px rgba(139, 92, 246, 0.4)',
+                                    background: 'linear-gradient(135deg, #06b6d4, #06b6d4)',
+                                    boxShadow: '0 4px 20px rgba(6, 182, 212, 0.4)',
                                 }}
                             >
                                 🎙️ Mint Your Voice

@@ -329,8 +329,8 @@ export default function CreatePage() {
 
                     {/* Consent Confirmation */}
                     <div className="form-group" style={{
-                        background: 'rgba(139, 92, 246, 0.1)',
-                        border: '1px solid rgba(139, 92, 246, 0.3)',
+                        background: 'rgba(6, 182, 212, 0.1)',
+                        border: '1px solid rgba(6, 182, 212, 0.3)',
                         borderRadius: '12px',
                         padding: '16px',
                     }}>
