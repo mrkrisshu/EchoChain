@@ -155,32 +155,32 @@ export default function HomePage() {
                 </div>
 
                 <div className="grid grid-3">
-                    <div className="card">
-                        <div style={{ fontSize: '24px', marginBottom: '16px', opacity: 0.7 }}>01</div>
-                        <h3 style={{ fontSize: '18px', fontWeight: 500, marginBottom: '8px' }}>
+                    <div className="glass-card" style={{ padding: '32px' }}>
+                        <div className="gradient-text" style={{ fontSize: '32px', fontWeight: 700, marginBottom: '16px' }}>01</div>
+                        <h3 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '12px' }}>
                             Voice NFT
                         </h3>
-                        <p style={{ color: '#666', fontSize: '14px' }}>
+                        <p style={{ color: '#888', fontSize: '14px', lineHeight: 1.7 }}>
                             Mint your voice as an NFT on Solana. Prove ownership. Enable licensing.
                         </p>
                     </div>
 
-                    <div className="card">
-                        <div style={{ fontSize: '24px', marginBottom: '16px', opacity: 0.7 }}>02</div>
-                        <h3 style={{ fontSize: '18px', fontWeight: 500, marginBottom: '8px' }}>
+                    <div className="glass-card" style={{ padding: '32px' }}>
+                        <div className="gradient-text-cyan" style={{ fontSize: '32px', fontWeight: 700, marginBottom: '16px' }}>02</div>
+                        <h3 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '12px' }}>
                             On-Chain Licensing
                         </h3>
-                        <p style={{ color: '#666', fontSize: '14px' }}>
+                        <p style={{ color: '#888', fontSize: '14px', lineHeight: 1.7 }}>
                             License terms stored in PDAs. Enforced by Solana programs.
                         </p>
                     </div>
 
-                    <div className="card">
-                        <div style={{ fontSize: '24px', marginBottom: '16px', opacity: 0.7 }}>03</div>
-                        <h3 style={{ fontSize: '18px', fontWeight: 500, marginBottom: '8px' }}>
+                    <div className="glass-card" style={{ padding: '32px' }}>
+                        <div className="gradient-text-mixed" style={{ fontSize: '32px', fontWeight: 700, marginBottom: '16px' }}>03</div>
+                        <h3 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '12px' }}>
                             Per-Use Payments
                         </h3>
-                        <p style={{ color: '#666', fontSize: '14px' }}>
+                        <p style={{ color: '#888', fontSize: '14px', lineHeight: 1.7 }}>
                             Buyers pay SOL per use. Creators get paid directly.
                         </p>
                     </div>
@@ -325,23 +325,23 @@ export default function HomePage() {
             {/* Stats */}
             <section className="container" style={{ paddingBottom: '100px' }}>
                 <div className="grid grid-3">
-                    <div className="card" style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '32px', fontWeight: 200, marginBottom: '8px' }}>
+                    <div className="stat-glow">
+                        <div className="stat-value">
                             &lt;$0.001
                         </div>
-                        <p style={{ color: '#666', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Per-use cost</p>
+                        <p style={{ color: '#888', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '8px' }}>Per-use cost</p>
                     </div>
-                    <div className="card" style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '32px', fontWeight: 200, marginBottom: '8px' }}>
+                    <div className="stat-glow">
+                        <div className="stat-value">
                             400ms
                         </div>
-                        <p style={{ color: '#666', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Finality</p>
+                        <p style={{ color: '#888', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '8px' }}>Finality</p>
                     </div>
-                    <div className="card" style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '32px', fontWeight: 200, marginBottom: '8px' }}>
+                    <div className="stat-glow">
+                        <div className="stat-value">
                             PDAs
                         </div>
-                        <p style={{ color: '#666', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Enforcement</p>
+                        <p style={{ color: '#888', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '8px' }}>Enforcement</p>
                     </div>
                 </div>
             </section>
