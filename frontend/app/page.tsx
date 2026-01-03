@@ -74,20 +74,42 @@ export default function HomePage() {
                 {/* CTA Buttons */}
                 <div style={{
                     position: 'absolute',
-                    bottom: '15%',
+                    bottom: '12%',
                     right: '40px',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '12px',
+                    gap: '16px',
                     zIndex: 20,
                 }}>
                     {connected ? (
                         <>
-                            <Link href="/create" className="btn btn-primary">
-                                Mint Your Voice
+                            <Link
+                                href="/create"
+                                className="btn btn-primary"
+                                style={{
+                                    padding: '18px 40px',
+                                    fontSize: '16px',
+                                    fontWeight: 600,
+                                    borderRadius: '12px',
+                                    background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+                                    boxShadow: '0 4px 20px rgba(139, 92, 246, 0.4)',
+                                }}
+                            >
+                                🎙️ Mint Your Voice
                             </Link>
-                            <Link href="/marketplace" className="btn btn-secondary">
-                                Browse Marketplace
+                            <Link
+                                href="/marketplace"
+                                className="btn btn-secondary"
+                                style={{
+                                    padding: '18px 40px',
+                                    fontSize: '16px',
+                                    fontWeight: 600,
+                                    borderRadius: '12px',
+                                    background: 'rgba(255,255,255,0.1)',
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                }}
+                            >
+                                🛒 Browse Marketplace
                             </Link>
                         </>
                     ) : (
@@ -320,6 +342,72 @@ export default function HomePage() {
                             PDAs
                         </div>
                         <p style={{ color: '#666', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Enforcement</p>
+                    </div>
+                </div>
+            </section>
+
+            {/* Built For Section */}
+            <section style={{
+                borderTop: '1px solid #222',
+                padding: '60px 24px',
+                textAlign: 'center',
+            }}>
+                <p style={{
+                    color: '#666',
+                    fontSize: '14px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '2px',
+                    marginBottom: '32px',
+                }}>
+                    Built for
+                </p>
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '48px',
+                    flexWrap: 'wrap',
+                    opacity: 0.7,
+                }}>
+                    {/* Solana */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <svg width="28" height="28" viewBox="0 0 128 128" fill="url(#solana-gradient)">
+                            <defs>
+                                <linearGradient id="solana-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor="#00FFA3" />
+                                    <stop offset="100%" stopColor="#DC1FFF" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M93.5 42H25.3c-1 0-2 .4-2.7 1.2l-8.8 9.5c-1.5 1.6-.3 4.3 1.9 4.3h68.2c1 0 2-.4 2.7-1.2l8.8-9.5c1.5-1.6.3-4.3-1.9-4.3zm0 35H25.3c-1 0-2 .4-2.7 1.2l-8.8 9.5c-1.5 1.6-.3 4.3 1.9 4.3h68.2c1 0 2-.4 2.7-1.2l8.8-9.5c1.5-1.6.3-4.3-1.9-4.3zm-77.7-17.5l8.8-9.5c.7-.8 1.7-1.2 2.7-1.2h68.2c2.2 0 3.4 2.7 1.9 4.3l-8.8 9.5c-.7.8-1.7 1.2-2.7 1.2H17.7c-2.2 0-3.4-2.7-1.9-4.3z" />
+                        </svg>
+                        <span style={{ fontSize: '20px', fontWeight: 700, color: 'white' }}>SOLANA</span>
+                    </div>
+                    {/* Phantom */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{
+                            width: '28px',
+                            height: '28px',
+                            background: 'linear-gradient(135deg, #AB9FF2, #594DBB)',
+                            borderRadius: '6px',
+                        }} />
+                        <span style={{ fontSize: '20px', fontWeight: 700, color: 'white' }}>Phantom</span>
+                    </div>
+                    {/* Vercel */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <svg width="24" height="24" viewBox="0 0 116 100" fill="white">
+                            <path d="M57.5 0L115 100H0L57.5 0z" />
+                        </svg>
+                        <span style={{ fontSize: '20px', fontWeight: 700, color: 'white' }}>Vercel</span>
+                    </div>
+                    {/* Supabase */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{
+                            width: '28px',
+                            height: '28px',
+                            background: '#3ECF8E',
+                            borderRadius: '6px',
+                        }} />
+                        <span style={{ fontSize: '20px', fontWeight: 700, color: 'white' }}>Supabase</span>
                     </div>
                 </div>
             </section>
