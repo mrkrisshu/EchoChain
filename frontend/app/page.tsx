@@ -5,6 +5,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import dynamic from 'next/dynamic';
 import { Hero } from '@/components/void-hero';
 import { TestimonialsSection } from '@/components/testimonials-with-marquee';
+import { Features } from '@/components/features-8';
 
 // Dynamic import to prevent hydration mismatch
 const WalletMultiButton = dynamic(
@@ -138,54 +139,8 @@ export default function HomePage() {
                 </div>
             </div>
 
-            {/* Features Section */}
-            <section className="container" style={{ padding: '100px 24px' }}>
-                <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-                    <h2 style={{
-                        fontSize: '32px',
-                        fontWeight: 300,
-                        marginBottom: '16px',
-                        color: 'white',
-                    }}>
-                        Voice Ownership Protocol
-                    </h2>
-                    <p style={{ color: '#666', maxWidth: '500px', margin: '0 auto' }}>
-                        Voice = NFT + License + Payment
-                    </p>
-                </div>
-
-                <div className="grid grid-3">
-                    <div className="glass-card" style={{ padding: '32px' }}>
-                        <div className="gradient-text" style={{ fontSize: '32px', fontWeight: 700, marginBottom: '16px' }}>01</div>
-                        <h3 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '12px' }}>
-                            Voice NFT
-                        </h3>
-                        <p style={{ color: '#888', fontSize: '14px', lineHeight: 1.7 }}>
-                            Mint your voice as an NFT on Solana. Prove ownership. Enable licensing.
-                        </p>
-                    </div>
-
-                    <div className="glass-card" style={{ padding: '32px' }}>
-                        <div className="gradient-text-cyan" style={{ fontSize: '32px', fontWeight: 700, marginBottom: '16px' }}>02</div>
-                        <h3 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '12px' }}>
-                            On-Chain Licensing
-                        </h3>
-                        <p style={{ color: '#888', fontSize: '14px', lineHeight: 1.7 }}>
-                            License terms stored in PDAs. Enforced by Solana programs.
-                        </p>
-                    </div>
-
-                    <div className="glass-card" style={{ padding: '32px' }}>
-                        <div className="gradient-text-mixed" style={{ fontSize: '32px', fontWeight: 700, marginBottom: '16px' }}>03</div>
-                        <h3 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '12px' }}>
-                            Per-Use Payments
-                        </h3>
-                        <p style={{ color: '#888', fontSize: '14px', lineHeight: 1.7 }}>
-                            Buyers pay SOL per use. Creators get paid directly.
-                        </p>
-                    </div>
-                </div>
-            </section>
+            {/* Features Section - shadcn component */}
+            <Features />
 
             {/* Testimonials Section */}
             <TestimonialsSection
