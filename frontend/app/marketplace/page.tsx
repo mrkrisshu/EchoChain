@@ -66,6 +66,7 @@ export default function MarketplacePage() {
     const [expandedCard, setExpandedCard] = useState<string | null>(null);
     const [allVoices, setAllVoices] = useState<Voice[]>(DEMO_VOICES);
     const [isLoading, setIsLoading] = useState(true);
+    const [successInfo, setSuccessInfo] = useState<{ name: string; signature: string } | null>(null);
 
     // Fetch minted voices from Supabase
     useEffect(() => {
@@ -106,7 +107,7 @@ export default function MarketplacePage() {
             await connection.confirmTransaction(signature, 'confirmed');
 
             setPurchasedVoices(new Set(Array.from(purchasedVoices).concat(voice.mint)));
-            alert(`Success! Purchased 1 use of "${voice.name}"\n\nTx: ${signature}`);
+            setSuccessInfo({ name: voice.name, signature });
 
         } catch (error) {
             console.error('Purchase failed:', error);
@@ -128,6 +129,60 @@ export default function MarketplacePage() {
 
     return (
         <div className="page">
+            {/* Success Modal */}
+            {successInfo && (
+                <div style={{
+                    position: 'fixed',
+                    inset: 0,
+                    zIndex: 1000,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'rgba(0,0,0,0.8)',
+                    backdropFilter: 'blur(8px)',
+                }}>
+                    <div style={{
+                        background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)',
+                        border: '1px solid rgba(139, 92, 246, 0.3)',
+                        borderRadius: '24px',
+                        padding: '48px',
+                        maxWidth: '480px',
+                        textAlign: 'center',
+                    }}>
+                        <div style={{ fontSize: '64px', marginBottom: '24px' }}>🎉</div>
+                        <h2 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '12px', color: '#a78bfa' }}>
+                            Purchase Successful!
+                        </h2>
+                        <p style={{ fontSize: '18px', marginBottom: '24px', color: 'white' }}>
+                            You now have 1 use of <strong>{successInfo.name}</strong>
+                        </p>
+                        <div style={{
+                            background: 'rgba(0,0,0,0.3)',
+                            borderRadius: '12px',
+                            padding: '16px',
+                            marginBottom: '24px',
+                        }}>
+                            <p style={{ fontSize: '12px', color: '#888', marginBottom: '8px' }}>Transaction ID:</p>
+                            <a
+                                href={`https://explorer.solana.com/tx/${successInfo.signature}?cluster=devnet`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ fontSize: '13px', color: '#06b6d4', wordBreak: 'break-all' }}
+                            >
+                                {successInfo.signature.slice(0, 20)}...{successInfo.signature.slice(-20)}
+                            </a>
+                        </div>
+                        <button
+                            onClick={() => setSuccessInfo(null)}
+                            className="btn btn-primary"
+                            style={{ padding: '16px 48px', fontSize: '16px' }}
+                        >
+                            Continue Shopping
+                        </button>
+                    </div>
+                </div>
+            )}
+
             <div className="container">
                 <div className="page-header">
                     <h1>🛒 Voice Marketplace</h1>
