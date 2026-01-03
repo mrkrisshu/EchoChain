@@ -1,9 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { SystemProgram, Transaction } from '@solana/web3.js';
 import Link from 'next/link';
 import { AILicenseSummary } from '@/components/AILicenseSummary';
 import { VoiceLicenseData } from '@/lib/ai';
+import { voiceStorage, VoiceRecord } from '@/lib/supabase';
 
 // Demo voice data (shown alongside user-minted voices)
 const DEMO_VOICES = [
@@ -37,23 +41,40 @@ const DEMO_VOICES = [
 
 type Voice = typeof DEMO_VOICES[0];
 
+// Convert Supabase record to Voice type
+function toVoice(record: VoiceRecord): Voice {
+    return {
+        mint: record.mint,
+        name: record.name,
+        creator: record.creator,
+        creatorShort: record.creator_short,
+        pricePerUse: record.price_per_use,
+        maxUses: record.max_uses,
+        remainingUses: record.remaining_uses,
+        licenseType: record.license_type as 0 | 1,
+        resaleAllowed: record.resale_allowed,
+        totalUses: record.total_uses,
+        description: record.description,
+    };
+}
+
 export default function MarketplacePage() {
+    const { publicKey, connected, sendTransaction } = useWallet();
+    const { connection } = useConnection();
     const [loading, setLoading] = useState<string | null>(null);
     const [purchasedVoices, setPurchasedVoices] = useState<Set<string>>(new Set());
     const [expandedCard, setExpandedCard] = useState<string | null>(null);
     const [allVoices, setAllVoices] = useState<Voice[]>(DEMO_VOICES);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Fetch minted voices from API
+    // Fetch minted voices from Supabase
     useEffect(() => {
         async function fetchVoices() {
             try {
-                const response = await fetch('/api/voices');
-                if (response.ok) {
-                    const mintedVoices = await response.json();
-                    // Combine demo voices with minted voices (minted first)
-                    setAllVoices([...mintedVoices, ...DEMO_VOICES]);
-                }
+                const supabaseVoices = await voiceStorage.getAll();
+                const mintedVoices = supabaseVoices.map(toVoice);
+                // Combine minted voices with demo voices
+                setAllVoices([...mintedVoices, ...DEMO_VOICES]);
             } catch (error) {
                 console.error('Failed to fetch voices:', error);
             } finally {
@@ -64,32 +85,32 @@ export default function MarketplacePage() {
     }, []);
 
     const handleBuyUsage = async (voice: Voice) => {
+        if (!connected || !publicKey) {
+            alert('Please connect your Phantom wallet to purchase');
+            return;
+        }
+
         setLoading(voice.mint);
 
         try {
-            // Call API to record purchase (using local CLI)
-            const response = await fetch('/api/mint', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: `Purchase: ${voice.name}`,
-                    pricePerUse: voice.pricePerUse.toString(),
-                    maxUses: '1',
-                    licenseType: voice.licenseType.toString(),
-                }),
-            });
+            // Create purchase transaction using Phantom
+            const transaction = new Transaction().add(
+                SystemProgram.transfer({
+                    fromPubkey: publicKey,
+                    toPubkey: publicKey,
+                    lamports: 0, // Demo: In production, transfer to creator
+                })
+            );
 
-            if (!response.ok) {
-                throw new Error('Purchase failed');
-            }
+            const signature = await sendTransaction(transaction, connection);
+            await connection.confirmTransaction(signature, 'confirmed');
 
-            const data = await response.json();
             setPurchasedVoices(new Set(Array.from(purchasedVoices).concat(voice.mint)));
-            alert(`Success! Purchased 1 use of "${voice.name}"\n\nTx: ${data.signature}`);
+            alert(`Success! Purchased 1 use of "${voice.name}"\n\nTx: ${signature}`);
 
         } catch (error) {
             console.error('Purchase failed:', error);
-            alert('Purchase failed. Make sure solana-test-validator is running.');
+            alert('Purchase failed. Please try again.');
         } finally {
             setLoading(null);
         }
@@ -112,6 +133,15 @@ export default function MarketplacePage() {
                     <h1>🛒 Voice Marketplace</h1>
                     <p>Browse and purchase usage rights for AI-ready voice NFTs.</p>
                 </div>
+
+                {!connected && (
+                    <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+                        <p style={{ color: 'var(--muted)', marginBottom: '16px' }}>
+                            Connect your wallet to purchase voice licenses
+                        </p>
+                        <WalletMultiButton />
+                    </div>
+                )}
 
                 {isLoading && (
                     <div style={{ textAlign: 'center', marginBottom: '48px' }}>

@@ -13,8 +13,16 @@ interface Props {
 }
 
 export function SolanaProvider({ children }: Props) {
-    // Using Localhost with local CLI keypair
-    const endpoint = useMemo(() => 'http://127.0.0.1:8899', []);
+    // Environment-aware network selection
+    // - Production (Vercel): Uses Devnet
+    // - Local development: Uses Localhost if NEXT_PUBLIC_SOLANA_NETWORK is not set
+    const endpoint = useMemo(() => {
+        const network = process.env.NEXT_PUBLIC_SOLANA_NETWORK || 'localhost';
+        if (network === 'localhost') {
+            return 'http://127.0.0.1:8899';
+        }
+        return clusterApiUrl(network as 'devnet' | 'mainnet-beta');
+    }, []);
 
     const wallets = useMemo(
         () => [new PhantomWalletAdapter()],

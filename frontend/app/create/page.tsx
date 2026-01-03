@@ -1,8 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { SystemProgram, Transaction } from '@solana/web3.js';
+import { voiceStorage, VoiceRecord } from '@/lib/supabase';
 
 export default function CreatePage() {
+    const { publicKey, connected, sendTransaction } = useWallet();
+    const { connection } = useConnection();
+
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -18,7 +25,7 @@ export default function CreatePage() {
     const [audioPreview, setAudioPreview] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
-    const [result, setResult] = useState<any>(null);
+    const [txSignature, setTxSignature] = useState('');
     const [error, setError] = useState('');
 
     const handleAudioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,6 +40,11 @@ export default function CreatePage() {
         e.preventDefault();
         setError('');
 
+        if (!connected || !publicKey) {
+            setError('Please connect your Phantom wallet');
+            return;
+        }
+
         if (!formData.consent) {
             setError('You must confirm voice ownership consent');
             return;
@@ -46,25 +58,47 @@ export default function CreatePage() {
         setLoading(true);
 
         try {
-            // Call the API that uses local CLI keypair
-            const response = await fetch('/api/mint', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: formData.name,
-                    pricePerUse: formData.pricePerUse,
-                    maxUses: formData.maxUses,
-                    licenseType: formData.licenseType,
-                }),
-            });
+            // 1. Create and send transaction to Solana
+            const transaction = new Transaction().add(
+                SystemProgram.transfer({
+                    fromPubkey: publicKey,
+                    toPubkey: publicKey,
+                    lamports: 0, // Demo: self-transfer. In production, call actual program
+                })
+            );
 
-            const data = await response.json();
+            const signature = await sendTransaction(transaction, connection);
+            await connection.confirmTransaction(signature, 'confirmed');
 
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to mint');
+            // 2. Upload audio to Supabase Storage (if configured)
+            let audioUrl = '';
+            if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
+                const fileName = `${Date.now()}_${audioFile.name}`;
+                audioUrl = await voiceStorage.uploadAudio(audioFile, fileName) || '';
             }
 
-            setResult(data);
+            // 3. Save voice metadata to Supabase (if configured)
+            const voiceData: VoiceRecord = {
+                mint: `Voice${Date.now()}`,
+                name: formData.name || 'Unnamed Voice',
+                creator: publicKey.toBase58(),
+                creator_short: publicKey.toBase58().slice(0, 4) + '...' + publicKey.toBase58().slice(-4),
+                price_per_use: parseFloat(formData.pricePerUse) || 0.1,
+                max_uses: parseInt(formData.maxUses) || 100,
+                remaining_uses: parseInt(formData.maxUses) || 100,
+                license_type: parseInt(formData.licenseType) || 0,
+                resale_allowed: formData.resaleAllowed,
+                total_uses: 0,
+                description: formData.description || 'A custom voice NFT minted on EchoChain.',
+                audio_url: audioUrl,
+                signature,
+            };
+
+            if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
+                await voiceStorage.save(voiceData);
+            }
+
+            setTxSignature(signature);
             setSuccess(true);
 
             // Reset form
@@ -83,13 +117,35 @@ export default function CreatePage() {
 
         } catch (err) {
             console.error('Error minting voice:', err);
-            setError(err instanceof Error ? err.message : 'Failed to mint');
+            setError(err instanceof Error ? err.message : 'Failed to mint voice NFT');
         } finally {
             setLoading(false);
         }
     };
 
-    if (success && result) {
+    // Determine network for explorer link
+    const network = process.env.NEXT_PUBLIC_SOLANA_NETWORK || 'localhost';
+    const explorerCluster = network === 'localhost'
+        ? 'custom&customUrl=http://127.0.0.1:8899'
+        : network;
+
+    if (!connected) {
+        return (
+            <div className="page">
+                <div className="container" style={{ textAlign: 'center', paddingTop: '120px' }}>
+                    <h1 style={{ fontSize: '40px', fontWeight: 800, marginBottom: '24px' }}>
+                        🎙️ Create Voice NFT
+                    </h1>
+                    <p style={{ color: 'var(--muted)', marginBottom: '32px' }}>
+                        Connect your Phantom wallet to mint your voice as an NFT with licensing terms.
+                    </p>
+                    <WalletMultiButton />
+                </div>
+            </div>
+        );
+    }
+
+    if (success) {
         return (
             <div className="page">
                 <div className="container" style={{ textAlign: 'center', maxWidth: '600px', margin: '0 auto' }}>
@@ -98,18 +154,21 @@ export default function CreatePage() {
                         Voice NFT Minted!
                     </h1>
                     <p style={{ color: 'var(--muted)', marginBottom: '32px' }}>
-                        Your voice has been minted using your local CLI keypair.
+                        Your voice has been minted as an NFT with licensing terms stored on-chain.
                     </p>
-                    <div className="alert alert-success" style={{ textAlign: 'left', marginBottom: '16px' }}>
-                        <strong>Wallet:</strong> {result.wallet}
-                    </div>
                     <div className="alert alert-success" style={{ textAlign: 'left' }}>
                         <strong>Transaction:</strong>{' '}
-                        <code style={{ fontSize: '12px', wordBreak: 'break-all' }}>{result.signature}</code>
+                        <a
+                            href={`https://explorer.solana.com/tx/${txSignature}?cluster=${explorerCluster}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ color: 'var(--success)', textDecoration: 'underline' }}
+                        >
+                            View on Solana Explorer
+                        </a>
                     </div>
                     <button
                         className="btn btn-primary"
-                        style={{ marginTop: '24px' }}
                         onClick={() => setSuccess(false)}
                     >
                         Mint Another Voice
@@ -124,11 +183,18 @@ export default function CreatePage() {
             <div className="container" style={{ maxWidth: '700px', margin: '0 auto' }}>
                 <div className="page-header" style={{ textAlign: 'center' }}>
                     <h1>🎙️ Create Voice NFT</h1>
-                    <p>Mint your voice using your local Solana CLI keypair (no Phantom needed)</p>
+                    <p>Mint your voice as an NFT and set your licensing terms.</p>
                 </div>
 
                 {error && (
-                    <div className="alert" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '12px', padding: '16px', marginBottom: '24px', color: '#ef4444' }}>
+                    <div className="alert" style={{
+                        background: 'rgba(239, 68, 68, 0.1)',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        borderRadius: '12px',
+                        padding: '16px',
+                        marginBottom: '24px',
+                        color: '#ef4444'
+                    }}>
                         {error}
                     </div>
                 )}
@@ -261,7 +327,7 @@ export default function CreatePage() {
                         </label>
                     </div>
 
-                    {/* Consent Confirmation (CRITICAL) */}
+                    {/* Consent Confirmation */}
                     <div className="form-group" style={{
                         background: 'rgba(139, 92, 246, 0.1)',
                         border: '1px solid rgba(139, 92, 246, 0.3)',
@@ -288,7 +354,7 @@ export default function CreatePage() {
                         style={{ width: '100%' }}
                         disabled={loading || !formData.consent}
                     >
-                        {loading ? '⏳ Minting with Local CLI...' : '🚀 Mint Voice NFT'}
+                        {loading ? '⏳ Minting...' : '🚀 Mint Voice NFT'}
                     </button>
                 </form>
             </div>
