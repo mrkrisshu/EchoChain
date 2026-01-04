@@ -81,6 +81,16 @@ export default function UsePage() {
             setTotalUsed(totalUsed + 1);
             setLastTx(signature);
 
+            // Speak confirmation using Text-to-Speech
+            if (typeof window !== 'undefined' && window.speechSynthesis) {
+                const utterance = new SpeechSynthesisUtterance(
+                    `Voice ${voiceData.name} activated. You have ${remainingUses - 1} uses remaining.`
+                );
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+                window.speechSynthesis.speak(utterance);
+            }
+
         } catch (error) {
             console.error('Use voice failed:', error);
             alert('Failed to use voice. Please try again.');

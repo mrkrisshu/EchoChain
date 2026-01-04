@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { generateWithAI, canAttemptAIGeneration, AIGenerationResult } from '@/lib/ai';
 
@@ -13,7 +13,7 @@ interface AIGenerateButtonProps {
 
 /**
  * AI Generate Button - Dark Minimal
- * Implements Solana-first gatekeeper pattern
+ * Implements Solana-first gatekeeper pattern with Text-to-Speech
  */
 export function AIGenerateButton({
     voiceMint,
@@ -27,6 +27,56 @@ export function AIGenerateButton({
     const [isGenerating, setIsGenerating] = useState(false);
     const [result, setResult] = useState<AIGenerationResult | null>(null);
     const [showResult, setShowResult] = useState(false);
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+    // Text-to-Speech function
+    const speakContent = (text: string) => {
+        if (typeof window === 'undefined' || !window.speechSynthesis) {
+            alert('Text-to-Speech is not supported in this browser.');
+            return;
+        }
+
+        // Stop any current speech
+        window.speechSynthesis.cancel();
+
+        // Clean the text (remove markdown-like formatting)
+        const cleanText = text
+            .replace(/\[.*?\]/g, '')
+            .replace(/\*/g, '')
+            .replace(/\n+/g, ' ')
+            .trim();
+
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+
+        // Try to get a good voice
+        const voices = window.speechSynthesis.getVoices();
+        const preferredVoice = voices.find(v =>
+            v.name.includes('Google') ||
+            v.name.includes('Microsoft') ||
+            v.lang === 'en-US'
+        );
+        if (preferredVoice) {
+            utterance.voice = preferredVoice;
+        }
+
+        utterance.onstart = () => setIsSpeaking(true);
+        utterance.onend = () => setIsSpeaking(false);
+        utterance.onerror = () => setIsSpeaking(false);
+
+        utteranceRef.current = utterance;
+        window.speechSynthesis.speak(utterance);
+    };
+
+    const stopSpeaking = () => {
+        if (typeof window !== 'undefined' && window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+            setIsSpeaking(false);
+        }
+    };
 
     const canGenerate = connected && canAttemptAIGeneration(remainingUses);
 
@@ -189,6 +239,28 @@ export function AIGenerateButton({
                             </div>
                         )}
 
+                        {/* Play Voice Button - Text-to-Speech */}
+                        {result.success && result.content && (
+                            <button
+                                className={`btn ${isSpeaking ? 'btn-secondary' : 'btn-primary'}`}
+                                onClick={() => isSpeaking ? stopSpeaking() : speakContent(result.content!)}
+                                style={{
+                                    width: '100%',
+                                    marginBottom: '12px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '8px',
+                                }}
+                            >
+                                {isSpeaking ? (
+                                    <>🔊 Stop Voice</>
+                                ) : (
+                                    <>🎤 Play Voice</>
+                                )}
+                            </button>
+                        )}
+
                         {!result.success && (
                             <div style={{
                                 background: 'rgba(239, 68, 68, 0.05)',
@@ -203,7 +275,10 @@ export function AIGenerateButton({
 
                         <button
                             className="btn btn-secondary"
-                            onClick={() => setShowResult(false)}
+                            onClick={() => {
+                                stopSpeaking();
+                                setShowResult(false);
+                            }}
                             style={{ width: '100%' }}
                         >
                             Close
