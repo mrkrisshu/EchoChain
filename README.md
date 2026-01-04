@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="frontend/public/echochain-logo.svg" alt="EchoChain Logo" width="80" height="80" />
+  <img src="frontend/public/echochain-logo.png" alt="EchoChain Logo" width="200" />
 </p>
 
 <h1 align="center">EchoChain</h1>
@@ -332,6 +332,6 @@ MIT License - see [LICENSE](LICENSE) for details.
 </p>
 
 <p align="center">
-  <a href="https://echochain.vercel.app">🌐 Live Demo</a> •
+  <a href="https://echo-chain-liard.vercel.app">🌐 Live Demo</a> •
   <a href="https://explorer.solana.com/?cluster=devnet">🔍 Solana Explorer</a>
 </p>
