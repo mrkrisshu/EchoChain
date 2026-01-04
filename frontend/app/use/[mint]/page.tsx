@@ -196,11 +196,58 @@ export default function UsePage() {
                 )}
 
                 <h1 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '8px' }}>
-                    {displayData.name}
+                    {isLoadingVoice ? 'Loading...' : displayData.name}
                 </h1>
                 <p style={{ color: 'var(--muted)', marginBottom: '24px' }}>
                     by {displayData.creator_short || displayData.creator}
                 </p>
+
+                {/* Voice Audio Section */}
+                <div style={{
+                    background: 'rgba(6, 182, 212, 0.1)',
+                    border: '1px solid rgba(6, 182, 212, 0.3)',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    marginBottom: '24px',
+                }}>
+                    <p style={{ fontSize: '14px', color: 'var(--secondary)', marginBottom: '12px' }}>
+                        🎧 <strong>Voice Audio Sample</strong>
+                    </p>
+
+                    {isLoadingVoice ? (
+                        <p style={{ fontSize: '13px', color: 'var(--muted)' }}>Loading voice data...</p>
+                    ) : voiceData?.audio_url ? (
+                        <>
+                            {/* Visible Audio Player */}
+                            <audio
+                                controls
+                                src={voiceData.audio_url}
+                                style={{ width: '100%', marginBottom: '12px' }}
+                            />
+                            <button
+                                className={`btn ${isPlaying ? 'btn-secondary' : 'btn-primary'}`}
+                                style={{
+                                    width: '100%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '8px',
+                                }}
+                                onClick={playVoiceAudio}
+                            >
+                                {isPlaying ? (
+                                    <>🔊 Stop Audio</>
+                                ) : (
+                                    <>🎤 Play Voice</>
+                                )}
+                            </button>
+                        </>
+                    ) : (
+                        <p style={{ fontSize: '13px', color: '#ef4444' }}>
+                            ⚠️ No audio file found for this voice. The voice may not have an audio sample uploaded.
+                        </p>
+                    )}
+                </div>
 
                 {/* AI License Summary */}
                 <AILicenseSummary license={licenseData} />
@@ -210,28 +257,6 @@ export default function UsePage() {
                     <p style={{ color: 'var(--muted)', marginBottom: '8px' }}>Remaining Uses</p>
                     <div className="usage-remaining">{remainingUses}</div>
                 </div>
-
-                {/* Play Voice Audio Button - Plays the actual purchased audio */}
-                {voiceData?.audio_url && (
-                    <button
-                        className={`btn ${isPlaying ? 'btn-secondary' : 'btn-primary'}`}
-                        style={{
-                            width: '100%',
-                            marginBottom: '16px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '8px',
-                        }}
-                        onClick={playVoiceAudio}
-                    >
-                        {isPlaying ? (
-                            <>🔊 Stop Audio</>
-                        ) : (
-                            <>🎧 Play Voice Audio</>
-                        )}
-                    </button>
-                )}
 
                 {/* Manual Use Button */}
                 <button
