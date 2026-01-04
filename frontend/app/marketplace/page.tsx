@@ -2,14 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import dynamic from 'next/dynamic';
 import { SystemProgram, Transaction } from '@solana/web3.js';
 import Link from 'next/link';
 import { AILicenseSummary } from '@/components/AILicenseSummary';
 import { VoiceLicenseData } from '@/lib/ai';
 import { voiceStorage, VoiceRecord } from '@/lib/supabase';
+import { Mic, ShoppingCart, Shield, Link2, Check, Loader2, ChevronDown, ChevronUp, X } from 'lucide-react';
 
-// Demo voice data (shown alongside user-minted voices)
+const WalletMultiButton = dynamic(
+    () => import('@solana/wallet-adapter-react-ui').then(mod => mod.WalletMultiButton),
+    { ssr: false }
+);
+
+// Demo voice data
 const DEMO_VOICES = [
     {
         mint: 'Voice1111111111111111111111111111111111111111',
@@ -37,11 +43,23 @@ const DEMO_VOICES = [
         totalUses: 158,
         description: 'Warm and approachable voice for virtual assistants and guides.',
     },
+    {
+        mint: 'Voice3333333333333333333333333333333333333333',
+        name: 'Professional Narrator',
+        creator: '5xKLtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgCsU',
+        creatorShort: '5xKL...CsU',
+        pricePerUse: 0.15,
+        maxUses: 200,
+        remainingUses: 178,
+        licenseType: 1 as const,
+        resaleAllowed: true,
+        totalUses: 22,
+        description: 'Clear and articulate voice ideal for audiobooks and podcasts.',
+    },
 ];
 
 type Voice = typeof DEMO_VOICES[0];
 
-// Convert Supabase record to Voice type
 function toVoice(record: VoiceRecord): Voice {
     return {
         mint: record.mint,
@@ -68,13 +86,11 @@ export default function MarketplacePage() {
     const [isLoading, setIsLoading] = useState(true);
     const [successInfo, setSuccessInfo] = useState<{ name: string; signature: string; voiceId: string } | null>(null);
 
-    // Fetch minted voices from Supabase
     useEffect(() => {
         async function fetchVoices() {
             try {
                 const supabaseVoices = await voiceStorage.getAll();
                 const mintedVoices = supabaseVoices.map(toVoice);
-                // Combine minted voices with demo voices
                 setAllVoices([...mintedVoices, ...DEMO_VOICES]);
             } catch (error) {
                 console.error('Failed to fetch voices:', error);
@@ -94,12 +110,11 @@ export default function MarketplacePage() {
         setLoading(voice.mint);
 
         try {
-            // Create purchase transaction using Phantom
             const transaction = new Transaction().add(
                 SystemProgram.transfer({
                     fromPubkey: publicKey,
                     toPubkey: publicKey,
-                    lamports: 0, // Demo: In production, transfer to creator
+                    lamports: 0,
                 })
             );
 
@@ -117,8 +132,7 @@ export default function MarketplacePage() {
         }
     };
 
-    // Convert voice to license data for AI summary
-    const toLicenseData = (voice: typeof DEMO_VOICES[0]): VoiceLicenseData => ({
+    const toLicenseData = (voice: Voice): VoiceLicenseData => ({
         licenseType: voice.licenseType,
         pricePerUse: voice.pricePerUse,
         remainingUses: voice.remainingUses,
@@ -128,185 +142,164 @@ export default function MarketplacePage() {
     });
 
     return (
-        <div className="page">
+        <div className="min-h-screen bg-[#0a0a0a] px-6 md:px-8 pt-28 pb-8">
             {/* Success Modal */}
             {successInfo && (
-                <div style={{
-                    position: 'fixed',
-                    inset: 0,
-                    zIndex: 1000,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: 'rgba(0,0,0,0.8)',
-                    backdropFilter: 'blur(8px)',
-                }}>
-                    <div style={{
-                        background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)',
-                        border: '1px solid rgba(6, 182, 212, 0.3)',
-                        borderRadius: '24px',
-                        padding: '48px',
-                        maxWidth: '480px',
-                        textAlign: 'center',
-                    }}>
-                        <div style={{ fontSize: '64px', marginBottom: '24px' }}>🎉</div>
-                        <h2 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '12px', color: '#a78bfa' }}>
-                            Purchase Successful!
-                        </h2>
-                        <p style={{ fontSize: '18px', marginBottom: '24px', color: 'white' }}>
-                            You now have 1 use of <strong>{successInfo.name}</strong>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                    <div className="bg-gradient-to-br from-cyan-500/20 to-teal-500/20 border border-cyan-500/30 rounded-2xl p-8 max-w-md w-full text-center relative">
+                        <button
+                            onClick={() => setSuccessInfo(null)}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-white transition"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
+                            <Check className="w-8 h-8 text-green-400" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-white mb-2">Purchase Successful!</h2>
+                        <p className="text-gray-300 mb-6">
+                            You now have 1 use of <strong className="text-cyan-400">{successInfo.name}</strong>
                         </p>
-                        <div style={{
-                            background: 'rgba(0,0,0,0.3)',
-                            borderRadius: '12px',
-                            padding: '16px',
-                            marginBottom: '24px',
-                        }}>
-                            <p style={{ fontSize: '12px', color: '#888', marginBottom: '8px' }}>Transaction ID:</p>
+                        <div className="bg-black/30 rounded-xl p-4 mb-6">
+                            <p className="text-xs text-gray-500 mb-2">Transaction ID</p>
                             <a
                                 href={`https://explorer.solana.com/tx/${successInfo.signature}?cluster=devnet`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                style={{ fontSize: '13px', color: '#06b6d4', wordBreak: 'break-all' }}
+                                className="text-sm text-cyan-400 hover:text-cyan-300 break-all"
                             >
-                                {successInfo.signature.slice(0, 20)}...{successInfo.signature.slice(-20)}
+                                {successInfo.signature.slice(0, 16)}...{successInfo.signature.slice(-16)}
                             </a>
                         </div>
-                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                            <a
+                        <div className="flex gap-3">
+                            <Link
                                 href={`/license/${successInfo.voiceId}`}
-                                className="btn btn-secondary"
-                                style={{ padding: '16px 24px', fontSize: '14px', textDecoration: 'none' }}
+                                className="flex-1 py-3 bg-white/10 border border-white/20 text-white font-medium rounded-xl hover:bg-white/20 transition text-center text-sm"
                             >
-                                🔐 View License Proof
-                            </a>
+                                View License
+                            </Link>
                             <button
                                 onClick={() => setSuccessInfo(null)}
-                                className="btn btn-primary"
-                                style={{ padding: '16px 24px', fontSize: '14px' }}
+                                className="flex-1 py-3 bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-semibold rounded-xl hover:opacity-90 transition text-sm"
                             >
-                                Continue Shopping
+                                Continue
                             </button>
                         </div>
                     </div>
                 </div>
             )}
 
-            <div className="container">
-                <div className="page-header">
-                    <h1>🛒 Voice Marketplace</h1>
-                    <p>Browse and purchase usage rights for AI-ready voice NFTs.</p>
+            <div className="max-w-6xl mx-auto">
+                {/* Header */}
+                <div className="text-center mb-10">
+                    <h1 className="text-3xl font-bold text-white mb-2">🛒 Voice Marketplace</h1>
+                    <p className="text-gray-400">Browse and purchase usage rights for AI-ready voice NFTs.</p>
                 </div>
 
+                {/* Connect Wallet Prompt */}
                 {!connected && (
-                    <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-                        <p style={{ color: 'var(--muted)', marginBottom: '16px' }}>
-                            Connect your wallet to purchase voice licenses
-                        </p>
+                    <div className="text-center mb-8 p-6 bg-white/5 border border-white/10 rounded-2xl">
+                        <p className="text-gray-400 mb-4">Connect your wallet to purchase voice licenses</p>
                         <WalletMultiButton />
                     </div>
                 )}
 
+                {/* Loading State */}
                 {isLoading && (
-                    <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-                        <p style={{ color: 'var(--muted)' }}>Loading voices...</p>
+                    <div className="text-center py-12">
+                        <Loader2 className="w-8 h-8 text-cyan-400 mx-auto animate-spin mb-4" />
+                        <p className="text-gray-400">Loading voices...</p>
                     </div>
                 )}
 
-                <div className="grid grid-3">
+                {/* Voice Cards Grid */}
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
                     {allVoices.map((voice) => (
-                        <div key={voice.mint} className="card voice-card">
-                            <div className="voice-card-header">
-                                <div className="voice-avatar">
-                                    🎙️
+                        <div key={voice.mint} className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm hover:border-cyan-500/30 transition-colors">
+                            {/* Card Header */}
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500/30 to-teal-500/30 flex items-center justify-center">
+                                        <Mic className="w-6 h-6 text-cyan-400" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold text-white">{voice.name}</h3>
+                                        <p className="text-xs text-gray-500">by {voice.creatorShort}</p>
+                                    </div>
                                 </div>
-                                <div className="voice-info">
-                                    <h3>{voice.name}</h3>
-                                    <p>by {voice.creatorShort}</p>
-                                </div>
-                                <span className={`badge ${voice.licenseType === 0 ? 'badge-personal' : 'badge-commercial'}`}>
+                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${voice.licenseType === 0
+                                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                    : 'bg-green-500/20 text-green-400 border border-green-500/30'
+                                    }`}>
                                     {voice.licenseType === 0 ? 'Personal' : 'Commercial'}
                                 </span>
                             </div>
 
-                            <p style={{ color: 'var(--muted)', fontSize: '14px' }}>
-                                {voice.description}
-                            </p>
+                            {/* Description */}
+                            <p className="text-sm text-gray-400 mb-4 line-clamp-2">{voice.description}</p>
 
-                            <div className="voice-stats">
-                                <div className="stat">
-                                    <div className="stat-value">{voice.pricePerUse} SOL</div>
-                                    <div className="stat-label">Per Use</div>
+                            {/* Stats */}
+                            <div className="grid grid-cols-2 gap-3 mb-4">
+                                <div className="bg-white/5 rounded-xl p-3 text-center">
+                                    <p className="text-lg font-bold text-cyan-400">{voice.pricePerUse} SOL</p>
+                                    <p className="text-xs text-gray-500">Per Use</p>
                                 </div>
-                                <div className="stat">
-                                    <div className="stat-value" style={{
-                                        color: voice.remainingUses === 0 ? 'var(--error)' : undefined
-                                    }}>
+                                <div className="bg-white/5 rounded-xl p-3 text-center">
+                                    <p className={`text-lg font-bold ${voice.remainingUses === 0 ? 'text-red-400' : 'text-white'}`}>
                                         {voice.remainingUses}
-                                    </div>
-                                    <div className="stat-label">
-                                        {voice.remainingUses === 0 ? 'EXHAUSTED' : 'Available'}
-                                    </div>
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                        {voice.remainingUses === 0 ? 'Exhausted' : 'Available'}
+                                    </p>
                                 </div>
                             </div>
 
-                            {/* AI License Summary - Expandable */}
+                            {/* AI License Summary Toggle */}
                             <button
                                 onClick={() => setExpandedCard(expandedCard === voice.mint ? null : voice.mint)}
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: 'var(--primary)',
-                                    cursor: 'pointer',
-                                    fontSize: '13px',
-                                    padding: '8px 0',
-                                    width: '100%',
-                                    textAlign: 'left',
-                                }}
+                                className="w-full flex items-center justify-between py-2 text-sm text-cyan-400 hover:text-cyan-300 transition mb-3"
                             >
-                                🤖 {expandedCard === voice.mint ? 'Hide' : 'Show'} AI License Summary
+                                <span>🤖 AI License Summary</span>
+                                {expandedCard === voice.mint ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                             </button>
 
                             {expandedCard === voice.mint && (
-                                <AILicenseSummary license={toLicenseData(voice)} />
+                                <div className="mb-4">
+                                    <AILicenseSummary license={toLicenseData(voice)} />
+                                </div>
                             )}
 
                             {/* Exhausted Warning */}
                             {voice.remainingUses === 0 && (
-                                <div style={{
-                                    background: 'rgba(239, 68, 68, 0.1)',
-                                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                                    borderRadius: '8px',
-                                    padding: '12px',
-                                    marginBottom: '12px',
-                                }}>
-                                    <p style={{ color: 'var(--error)', fontSize: '13px', fontWeight: 600 }}>
-                                        ⚠️ License Exhausted
-                                    </p>
-                                    <p style={{ color: 'var(--muted)', fontSize: '12px' }}>
-                                        AI generation is blocked for this voice.
-                                    </p>
+                                <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3 mb-4">
+                                    <p className="text-sm text-red-400 font-medium">⚠️ License Exhausted</p>
+                                    <p className="text-xs text-gray-500">AI generation is blocked for this voice.</p>
                                 </div>
                             )}
 
-                            <div style={{ display: 'flex', gap: '12px' }}>
+                            {/* Action Buttons */}
+                            <div className="flex gap-3">
                                 <button
-                                    className="btn btn-primary"
-                                    style={{
-                                        flex: 1,
-                                        opacity: voice.remainingUses === 0 ? 0.5 : 1,
-                                    }}
                                     onClick={() => handleBuyUsage(voice)}
                                     disabled={loading === voice.mint || voice.remainingUses === 0}
+                                    className="flex-1 py-3 bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-semibold rounded-xl hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
-                                    {loading === voice.mint ? '⏳ Processing...' :
-                                        voice.remainingUses === 0 ? 'Sold Out' : 'Buy 1 Use'}
+                                    {loading === voice.mint ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            Processing...
+                                        </>
+                                    ) : voice.remainingUses === 0 ? (
+                                        'Sold Out'
+                                    ) : (
+                                        'Buy 1 Use'
+                                    )}
                                 </button>
 
                                 {purchasedVoices.has(voice.mint) && (
                                     <Link
                                         href={`/use/${voice.mint}`}
-                                        className="btn btn-secondary"
+                                        className="py-3 px-4 bg-white/10 border border-white/20 text-white font-medium rounded-xl hover:bg-white/20 transition"
                                     >
                                         Use →
                                     </Link>
@@ -316,41 +309,41 @@ export default function MarketplacePage() {
                     ))}
                 </div>
 
-                {/* AI Gatekeeper Info */}
-                <div style={{
-                    marginTop: '48px',
-                    padding: '24px',
-                    background: 'rgba(6, 182, 212, 0.1)',
-                    border: '1px solid rgba(6, 182, 212, 0.3)',
-                    borderRadius: '16px',
-                }}>
-                    <h3 style={{ marginBottom: '12px', color: 'var(--secondary)' }}>
-                        🔐 AI Usage Gatekeeper
-                    </h3>
-                    <p style={{ color: 'var(--foreground)', fontSize: '14px', marginBottom: '8px' }}>
-                        <strong>AI cannot generate anything unless Solana approves usage first.</strong>
-                    </p>
-                    <p style={{ color: 'var(--muted)', fontSize: '13px' }}>
-                        When you use AI generation, EchoChain first calls the <code>use_voice</code> instruction
-                        on Solana. Only if this transaction succeeds is AI allowed to run. This ensures
-                        all licensing is enforced on-chain.
-                    </p>
+                {/* Info Cards */}
+                <div className="grid md:grid-cols-2 gap-6">
+                    {/* AI Gatekeeper */}
+                    <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-2xl p-6">
+                        <div className="flex items-center gap-3 mb-3">
+                            <Shield className="w-6 h-6 text-cyan-400" />
+                            <h3 className="text-lg font-semibold text-white">AI Usage Gatekeeper</h3>
+                        </div>
+                        <p className="text-gray-300 text-sm mb-2">
+                            <strong>AI cannot generate anything unless Solana approves usage first.</strong>
+                        </p>
+                        <p className="text-gray-500 text-sm">
+                            When you use AI generation, EchoChain first calls the <code className="text-cyan-400">use_voice</code> instruction on Solana. Only if this transaction succeeds is AI allowed to run.
+                        </p>
+                    </div>
+
+                    {/* On-Chain Transparency */}
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                        <div className="flex items-center gap-3 mb-3">
+                            <Link2 className="w-6 h-6 text-cyan-400" />
+                            <h3 className="text-lg font-semibold text-white">On-Chain Transparency</h3>
+                        </div>
+                        <p className="text-gray-400 text-sm">
+                            Every purchase creates an on-chain record. Usage rights are tracked in PDAs, and creators receive payments directly — no intermediaries.
+                        </p>
+                    </div>
                 </div>
 
-                {/* Protocol Info */}
-                <div style={{
-                    marginTop: '24px',
-                    textAlign: 'center',
-                    padding: '32px',
-                    background: 'var(--card)',
-                    borderRadius: '20px',
-                    border: '1px solid var(--border)',
-                }}>
-                    <h3 style={{ marginBottom: '16px' }}>🔗 On-Chain Transparency</h3>
-                    <p style={{ color: 'var(--muted)', maxWidth: '600px', margin: '0 auto' }}>
-                        Every purchase creates an on-chain record. Usage rights are tracked in PDAs,
-                        and creators receive payments directly — no intermediaries.
-                    </p>
+                {/* Footer */}
+                <div className="mt-8 flex items-center justify-center gap-2 text-sm text-gray-400">
+                    <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    Connected to Solana
                 </div>
             </div>
         </div>

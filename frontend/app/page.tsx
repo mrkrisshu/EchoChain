@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useWallet } from '@solana/wallet-adapter-react';
 import dynamic from 'next/dynamic';
 import { Hero } from '@/components/void-hero';
-import { TestimonialsSection } from '@/components/testimonials-with-marquee';
+import TestimonialsV2 from '@/components/testimonial-v2';
 import { Features } from '@/components/features-8';
 
 // Dynamic import to prevent hydration mismatch
@@ -21,45 +21,6 @@ export default function HomePage() {
         { name: 'CREATE', href: '/create' },
         { name: 'MARKETPLACE', href: '/marketplace' },
         { name: 'DASHBOARD', href: '/dashboard' }
-    ];
-
-    const testimonials = [
-        {
-            author: {
-                name: "Marcus Chen",
-                handle: "@marcusvoice",
-                avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop"
-            },
-            text: "Minted my voice in 2 minutes. Now I wake up to SOL in my wallet every time a developer uses it for their game characters.",
-            href: "https://twitter.com/marcusvoice"
-        },
-        {
-            author: {
-                name: "Sarah Williams",
-                handle: "@sarahpods",
-                avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop"
-            },
-            text: "The easiest passive income I've ever made. I just set my price per use, coverage takes care of the licensing, and I get paid instantly.",
-            href: "https://twitter.com/sarahpods"
-        },
-        {
-            author: {
-                name: "David Park",
-                handle: "@davidnarrates",
-                avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop"
-            },
-            text: "Finally, true ownership. No middlemen taking a cut. I see every single transaction on-chain and receive 100% of my royalties.",
-            href: "https://twitter.com/davidnarrates"
-        },
-        {
-            author: {
-                name: "Emma Rodriguez",
-                handle: "@emmavox",
-                avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&auto=format&fit=crop"
-            },
-            text: "I was skeptical about AI, but EchoChain lets me control it. Only approved apps can generate my voice, and they pay upfront in SOL.",
-            href: "https://twitter.com/emmavox"
-        }
     ];
 
     return (
@@ -142,162 +103,47 @@ export default function HomePage() {
             {/* Features Section - shadcn component */}
             <Features />
 
-            {/* Testimonials Section */}
-            <TestimonialsSection
-                title="What users say about EchoChain"
-                description="Real feedback from the community building the future of voice AI"
-                testimonials={testimonials}
-                className="dark"
-            />
+            {/* Testimonials Section - shadcn component */}
+            <TestimonialsV2 />
 
-            {/* Why This Matters Section */}
-            <section className="container" style={{ padding: '80px 24px' }}>
-                <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-                    <h2 style={{
-                        fontSize: '32px',
-                        fontWeight: 300,
-                        marginBottom: '16px',
-                        color: 'white',
-                    }}>
-                        Why This Matters
-                    </h2>
-                    <p style={{ color: '#888', maxWidth: '600px', margin: '0 auto' }}>
-                        The voice AI industry has a consent problem. EchoChain fixes it.
-                    </p>
-                </div>
-
+            {/* Compact Stats + SDK Section */}
+            <section style={{ maxWidth: '1152px', margin: '0 auto', padding: '40px 24px' }}>
                 <div style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                    gap: '24px',
-                    maxWidth: '900px',
-                    margin: '0 auto',
+                    gridTemplateColumns: 'repeat(4, 1fr)',
+                    gap: '16px',
+                    marginBottom: '32px',
                 }}>
-                    {/* The Problem */}
-                    <div style={{
-                        background: 'rgba(239, 68, 68, 0.1)',
-                        border: '1px solid rgba(239, 68, 68, 0.3)',
-                        borderRadius: '16px',
-                        padding: '32px',
-                    }}>
-                        <div style={{ fontSize: '32px', marginBottom: '16px' }}>❌</div>
-                        <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px', color: '#ef4444' }}>
-                            Today&apos;s Problem
-                        </h3>
-                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            <li style={{ color: '#aaa', fontSize: '14px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                <span style={{ color: '#ef4444' }}>•</span>
-                                Voices are scraped without consent
-                            </li>
-                            <li style={{ color: '#aaa', fontSize: '14px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                <span style={{ color: '#ef4444' }}>•</span>
-                                No way to prove voice ownership
-                            </li>
-                            <li style={{ color: '#aaa', fontSize: '14px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                <span style={{ color: '#ef4444' }}>•</span>
-                                Creators earn nothing from AI clones
-                            </li>
-                            <li style={{ color: '#aaa', fontSize: '14px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                <span style={{ color: '#ef4444' }}>•</span>
-                                No usage tracking or limits
-                            </li>
-                        </ul>
+                    <div style={{ textAlign: 'center', padding: '24px 16px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid #222' }}>
+                        <div style={{ fontSize: '24px', fontWeight: 600, color: '#06b6d4', marginBottom: '4px' }}>&lt;$0.001</div>
+                        <div style={{ fontSize: '11px', color: '#666', textTransform: 'uppercase', letterSpacing: '1px' }}>Per Use</div>
                     </div>
-
-                    {/* The Solution */}
-                    <div style={{
-                        background: 'rgba(34, 197, 94, 0.1)',
-                        border: '1px solid rgba(34, 197, 94, 0.3)',
-                        borderRadius: '16px',
-                        padding: '32px',
-                    }}>
-                        <div style={{ fontSize: '32px', marginBottom: '16px' }}>✅</div>
-                        <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px', color: '#22c55e' }}>
-                            EchoChain Solution
-                        </h3>
-                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            <li style={{ color: '#aaa', fontSize: '14px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                <span style={{ color: '#22c55e' }}>✓</span>
-                                Voice NFTs prove ownership on-chain
-                            </li>
-                            <li style={{ color: '#aaa', fontSize: '14px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                <span style={{ color: '#22c55e' }}>✓</span>
-                                License terms are transparent & enforceable
-                            </li>
-                            <li style={{ color: '#aaa', fontSize: '14px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                <span style={{ color: '#22c55e' }}>✓</span>
-                                Creators get paid per use in SOL
-                            </li>
-                            <li style={{ color: '#aaa', fontSize: '14px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                <span style={{ color: '#22c55e' }}>✓</span>
-                                Usage is auditable and limited
-                            </li>
-                        </ul>
+                    <div style={{ textAlign: 'center', padding: '24px 16px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid #222' }}>
+                        <div style={{ fontSize: '24px', fontWeight: 600, color: '#06b6d4', marginBottom: '4px' }}>400ms</div>
+                        <div style={{ fontSize: '11px', color: '#666', textTransform: 'uppercase', letterSpacing: '1px' }}>Finality</div>
+                    </div>
+                    <div style={{ textAlign: 'center', padding: '24px 16px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid #222' }}>
+                        <div style={{ fontSize: '24px', fontWeight: 600, color: '#06b6d4', marginBottom: '4px' }}>100%</div>
+                        <div style={{ fontSize: '11px', color: '#666', textTransform: 'uppercase', letterSpacing: '1px' }}>On-Chain</div>
+                    </div>
+                    <div style={{ textAlign: 'center', padding: '24px 16px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid #222' }}>
+                        <div style={{ fontSize: '24px', fontWeight: 600, color: '#06b6d4', marginBottom: '4px' }}>PDAs</div>
+                        <div style={{ fontSize: '11px', color: '#666', textTransform: 'uppercase', letterSpacing: '1px' }}>Enforced</div>
                     </div>
                 </div>
-            </section>
 
-            {/* AI Gatekeeper Section */}
-            <section className="container" style={{ padding: '80px 24px' }}>
+                {/* Mini SDK Preview */}
                 <div style={{
-                    background: '#111',
+                    background: '#0d0d0d',
                     border: '1px solid #222',
                     borderRadius: '12px',
-                    padding: '48px',
-                    textAlign: 'center',
+                    padding: '20px 24px',
+                    fontFamily: 'monospace',
+                    fontSize: '13px',
                 }}>
-                    <h2 style={{ fontSize: '24px', fontWeight: 300, marginBottom: '16px' }}>
-                        AI Usage Gatekeeper
-                    </h2>
-                    <p style={{
-                        color: 'white',
-                        fontSize: '16px',
-                        maxWidth: '600px',
-                        margin: '0 auto 20px',
-                    }}>
-                        AI cannot generate unless Solana approves first.
-                    </p>
-                    <p style={{ color: '#666', maxWidth: '500px', margin: '0 auto', fontSize: '14px' }}>
-                        AI features only operate after on-chain verification. Solana is the authority.
-                    </p>
-                </div>
-            </section>
-
-            {/* Developer Section */}
-            <section className="container" style={{ paddingBottom: '100px' }}>
-                <div className="dev-section">
-                    <h2>For Developers</h2>
-                    <p style={{ color: '#666', marginBottom: '24px', fontSize: '14px' }}>
-                        Integrate EchoChain. No backend required.
-                    </p>
-                    <div className="code-block">
-                        <span className="keyword">import</span> {'{ useVoice }'} <span className="keyword">from</span> <span className="string">&apos;@echochain/sdk&apos;</span>;<br /><br />
-                        <span className="keyword">const</span> result = <span className="keyword">await</span> <span className="function">useVoice</span>(voiceMint, wallet);
-                    </div>
-                </div>
-            </section>
-
-            {/* Stats */}
-            <section className="container" style={{ paddingBottom: '100px' }}>
-                <div className="grid grid-3">
-                    <div className="stat-glow">
-                        <div className="stat-value">
-                            &lt;$0.001
-                        </div>
-                        <p style={{ color: '#888', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '8px' }}>Per-use cost</p>
-                    </div>
-                    <div className="stat-glow">
-                        <div className="stat-value">
-                            400ms
-                        </div>
-                        <p style={{ color: '#888', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '8px' }}>Finality</p>
-                    </div>
-                    <div className="stat-glow">
-                        <div className="stat-value">
-                            PDAs
-                        </div>
-                        <p style={{ color: '#888', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '8px' }}>Enforcement</p>
-                    </div>
+                    <div style={{ color: '#666', marginBottom: '8px' }}>// Integrate in 2 lines</div>
+                    <div><span style={{ color: '#06b6d4' }}>import</span> {'{ useVoice }'} <span style={{ color: '#06b6d4' }}>from</span> <span style={{ color: '#22c55e' }}>&apos;@echochain/sdk&apos;</span></div>
+                    <div><span style={{ color: '#06b6d4' }}>const</span> result = <span style={{ color: '#06b6d4' }}>await</span> <span style={{ color: '#fff' }}>useVoice</span>(mint, wallet)</div>
                 </div>
             </section>
 

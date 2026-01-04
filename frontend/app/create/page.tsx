@@ -2,9 +2,15 @@
 
 import { useState } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import dynamic from 'next/dynamic';
 import { SystemProgram, Transaction } from '@solana/web3.js';
 import { voiceStorage, VoiceRecord } from '@/lib/supabase';
+import { Mic, Upload, Music, Wallet, Shield, Check, Loader2 } from 'lucide-react';
+
+const WalletMultiButton = dynamic(
+    () => import('@solana/wallet-adapter-react-ui').then(mod => mod.WalletMultiButton),
+    { ssr: false }
+);
 
 export default function CreatePage() {
     const { publicKey, connected, sendTransaction } = useWallet();
@@ -58,26 +64,23 @@ export default function CreatePage() {
         setLoading(true);
 
         try {
-            // 1. Create and send transaction to Solana
             const transaction = new Transaction().add(
                 SystemProgram.transfer({
                     fromPubkey: publicKey,
                     toPubkey: publicKey,
-                    lamports: 0, // Demo: self-transfer. In production, call actual program
+                    lamports: 0,
                 })
             );
 
             const signature = await sendTransaction(transaction, connection);
             await connection.confirmTransaction(signature, 'confirmed');
 
-            // 2. Upload audio to Supabase Storage (if configured)
             let audioUrl = '';
             if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
                 const fileName = `${Date.now()}_${audioFile.name}`;
                 audioUrl = await voiceStorage.uploadAudio(audioFile, fileName) || '';
             }
 
-            // 3. Save voice metadata to Supabase (if configured)
             const voiceData: VoiceRecord = {
                 mint: `Voice${Date.now()}`,
                 name: formData.name || 'Unnamed Voice',
@@ -101,7 +104,6 @@ export default function CreatePage() {
             setTxSignature(signature);
             setSuccess(true);
 
-            // Reset form
             setFormData({
                 name: '',
                 description: '',
@@ -123,20 +125,21 @@ export default function CreatePage() {
         }
     };
 
-    // Determine network for explorer link
     const network = process.env.NEXT_PUBLIC_SOLANA_NETWORK || 'localhost';
     const explorerCluster = network === 'localhost'
         ? 'custom&customUrl=http://127.0.0.1:8899'
         : network;
 
+    // Not Connected State
     if (!connected) {
         return (
-            <div className="page">
-                <div className="container" style={{ textAlign: 'center', paddingTop: '120px' }}>
-                    <h1 style={{ fontSize: '40px', fontWeight: 800, marginBottom: '24px' }}>
-                        🎙️ Create Voice NFT
-                    </h1>
-                    <p style={{ color: 'var(--muted)', marginBottom: '32px' }}>
+            <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6">
+                <div className="text-center max-w-md">
+                    <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-cyan-500/20 to-teal-500/20 flex items-center justify-center">
+                        <Mic className="w-10 h-10 text-cyan-400" />
+                    </div>
+                    <h1 className="text-3xl font-bold text-white mb-4">Create Voice NFT</h1>
+                    <p className="text-gray-400 mb-8">
                         Connect your Phantom wallet to mint your voice as an NFT with licensing terms.
                     </p>
                     <WalletMultiButton />
@@ -145,31 +148,32 @@ export default function CreatePage() {
         );
     }
 
+    // Success State
     if (success) {
         return (
-            <div className="page">
-                <div className="container" style={{ textAlign: 'center', maxWidth: '600px', margin: '0 auto' }}>
-                    <div style={{ fontSize: '80px', marginBottom: '24px' }}>🎉</div>
-                    <h1 style={{ fontSize: '40px', fontWeight: 800, marginBottom: '16px' }}>
-                        Voice NFT Minted!
-                    </h1>
-                    <p style={{ color: 'var(--muted)', marginBottom: '32px' }}>
+            <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6">
+                <div className="text-center max-w-lg">
+                    <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-green-500/20 flex items-center justify-center">
+                        <Check className="w-12 h-12 text-green-400" />
+                    </div>
+                    <h1 className="text-3xl font-bold text-white mb-4">Voice NFT Minted!</h1>
+                    <p className="text-gray-400 mb-6">
                         Your voice has been minted as an NFT with licensing terms stored on-chain.
                     </p>
-                    <div className="alert alert-success" style={{ textAlign: 'left' }}>
-                        <strong>Transaction:</strong>{' '}
+                    <div className="bg-white/5 border border-green-500/30 rounded-xl p-4 mb-6">
+                        <p className="text-sm text-gray-400 mb-2">Transaction</p>
                         <a
                             href={`https://explorer.solana.com/tx/${txSignature}?cluster=${explorerCluster}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={{ color: 'var(--success)', textDecoration: 'underline' }}
+                            className="text-cyan-400 hover:text-cyan-300 text-sm break-all"
                         >
-                            View on Solana Explorer
+                            {txSignature.slice(0, 20)}...{txSignature.slice(-20)}
                         </a>
                     </div>
                     <button
-                        className="btn btn-primary"
                         onClick={() => setSuccess(false)}
+                        className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-semibold rounded-xl hover:opacity-90 transition"
                     >
                         Mint Another Voice
                     </button>
@@ -178,52 +182,44 @@ export default function CreatePage() {
         );
     }
 
+    // Main Form
     return (
-        <div className="page">
-            <div className="container" style={{ maxWidth: '700px', margin: '0 auto' }}>
-                <div className="page-header" style={{ textAlign: 'center' }}>
-                    <h1>🎙️ Create Voice NFT</h1>
-                    <p>Mint your voice as an NFT and set your licensing terms.</p>
+        <div className="min-h-screen bg-[#0a0a0a] px-6 md:px-8 pt-28 pb-8">
+            <div className="max-w-2xl mx-auto">
+                {/* Header */}
+                <div className="text-center mb-8">
+                    <h1 className="text-3xl font-bold text-white mb-2">🎙️ Create Voice NFT</h1>
+                    <p className="text-gray-400">Mint your voice as an NFT and set your licensing terms.</p>
                 </div>
 
+                {/* Error Alert */}
                 {error && (
-                    <div className="alert" style={{
-                        background: 'rgba(239, 68, 68, 0.1)',
-                        border: '1px solid rgba(239, 68, 68, 0.3)',
-                        borderRadius: '12px',
-                        padding: '16px',
-                        marginBottom: '24px',
-                        color: '#ef4444'
-                    }}>
+                    <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6 text-red-400">
                         {error}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="card">
+                {/* Form Card */}
+                <form onSubmit={handleSubmit} className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
                     {/* Voice Sample Upload */}
-                    <div className="form-group">
-                        <label className="form-label">Voice Sample</label>
+                    <div className="mb-6">
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Voice Sample</label>
                         <div
-                            style={{
-                                border: '2px dashed var(--border)',
-                                borderRadius: '12px',
-                                padding: '40px',
-                                textAlign: 'center',
-                                cursor: 'pointer',
-                                transition: 'border-color 0.3s',
-                            }}
                             onClick={() => document.getElementById('audio-upload')?.click()}
+                            className="border-2 border-dashed border-white/20 hover:border-cyan-500/50 rounded-xl p-8 text-center cursor-pointer transition-colors"
                         >
                             {audioPreview ? (
-                                <>
-                                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎵</div>
-                                    <audio controls src={audioPreview} className="voice-audio" />
-                                </>
+                                <div>
+                                    <Music className="w-12 h-12 text-cyan-400 mx-auto mb-4" />
+                                    <audio controls src={audioPreview} className="mx-auto" />
+                                    <p className="text-sm text-gray-400 mt-3">{audioFile?.name}</p>
+                                </div>
                             ) : (
-                                <>
-                                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>📁</div>
-                                    <p style={{ color: 'var(--muted)' }}>Click to upload audio file</p>
-                                </>
+                                <div>
+                                    <Upload className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+                                    <p className="text-gray-400">Click to upload audio file</p>
+                                    <p className="text-xs text-gray-600 mt-2">MP3, WAV, or OGG</p>
+                                </div>
                             )}
                         </div>
                         <input
@@ -231,132 +227,143 @@ export default function CreatePage() {
                             type="file"
                             accept="audio/*"
                             onChange={handleAudioChange}
-                            style={{ display: 'none' }}
+                            className="hidden"
                         />
                     </div>
 
                     {/* Voice Name */}
-                    <div className="form-group">
-                        <label className="form-label">Voice Name</label>
+                    <div className="mb-6">
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Voice Name</label>
                         <input
                             type="text"
-                            className="form-input"
                             placeholder="e.g., Deep Narrator Voice"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             required
+                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500/50 transition"
                         />
                     </div>
 
                     {/* Description */}
-                    <div className="form-group">
-                        <label className="form-label">Description</label>
+                    <div className="mb-6">
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
                         <textarea
-                            className="form-input"
                             placeholder="Describe your voice..."
                             rows={3}
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            style={{ resize: 'vertical' }}
+                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500/50 transition resize-none"
                         />
                     </div>
 
                     {/* Pricing Row */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                        <div className="form-group">
-                            <label className="form-label">Price per Use (SOL)</label>
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">Price per Use (SOL)</label>
                             <input
                                 type="number"
-                                className="form-input"
                                 step="0.001"
                                 min="0.001"
                                 value={formData.pricePerUse}
                                 onChange={(e) => setFormData({ ...formData, pricePerUse: e.target.value })}
                                 required
+                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500/50 transition"
                             />
                         </div>
-                        <div className="form-group">
-                            <label className="form-label">Max Uses</label>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">Max Uses</label>
                             <input
                                 type="number"
-                                className="form-input"
                                 min="1"
                                 max="1000000"
                                 value={formData.maxUses}
                                 onChange={(e) => setFormData({ ...formData, maxUses: e.target.value })}
                                 required
+                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500/50 transition"
                             />
                         </div>
                     </div>
 
                     {/* License Type */}
-                    <div className="form-group">
-                        <label className="form-label">License Type</label>
+                    <div className="mb-6">
+                        <label className="block text-sm font-medium text-gray-300 mb-2">License Type</label>
                         <select
-                            className="form-select"
                             value={formData.licenseType}
                             onChange={(e) => setFormData({ ...formData, licenseType: e.target.value })}
+                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500/50 transition appearance-none cursor-pointer"
                         >
-                            <option value="0">Personal Use Only</option>
-                            <option value="1">Commercial Use Allowed</option>
+                            <option value="0" className="bg-[#1a1a1a]">Personal Use Only</option>
+                            <option value="1" className="bg-[#1a1a1a]">Commercial Use Allowed</option>
                         </select>
                     </div>
 
                     {/* Royalty */}
-                    <div className="form-group">
-                        <label className="form-label">Royalty on Resale (%)</label>
+                    <div className="mb-6">
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Royalty on Resale (%)</label>
                         <input
                             type="number"
-                            className="form-input"
                             min="0"
                             max="50"
                             value={formData.royaltyPercent}
                             onChange={(e) => setFormData({ ...formData, royaltyPercent: e.target.value })}
+                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500/50 transition"
                         />
                     </div>
 
                     {/* Resale Toggle */}
-                    <div className="form-group">
-                        <label className="form-checkbox">
+                    <div className="mb-6">
+                        <label className="flex items-center gap-3 cursor-pointer">
                             <input
                                 type="checkbox"
                                 checked={formData.resaleAllowed}
                                 onChange={(e) => setFormData({ ...formData, resaleAllowed: e.target.checked })}
+                                className="w-5 h-5 rounded border-white/20 bg-white/5 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-0"
                             />
-                            <span>Allow license resale</span>
+                            <span className="text-gray-300">Allow license resale</span>
                         </label>
                     </div>
 
                     {/* Consent Confirmation */}
-                    <div className="form-group" style={{
-                        background: 'rgba(6, 182, 212, 0.1)',
-                        border: '1px solid rgba(6, 182, 212, 0.3)',
-                        borderRadius: '12px',
-                        padding: '16px',
-                    }}>
-                        <label className="form-checkbox">
+                    <div className="mb-8 p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-xl">
+                        <label className="flex items-start gap-3 cursor-pointer">
                             <input
                                 type="checkbox"
                                 checked={formData.consent}
                                 onChange={(e) => setFormData({ ...formData, consent: e.target.checked })}
                                 required
+                                className="w-5 h-5 mt-0.5 rounded border-white/20 bg-white/5 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-0"
                             />
-                            <span>
-                                <strong>I confirm I own the rights to this voice</strong> and consent to it being
-                                licensed through EchoChain.
+                            <span className="text-gray-300">
+                                <strong className="text-white">I confirm I own the rights to this voice</strong> and consent to it being licensed through EchoChain.
                             </span>
                         </label>
                     </div>
 
+                    {/* Submit Button */}
                     <button
                         type="submit"
-                        className="btn btn-primary"
-                        style={{ width: '100%' }}
                         disabled={loading || !formData.consent}
+                        className="w-full py-4 bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-semibold rounded-xl hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                        {loading ? '⏳ Minting...' : '🚀 Mint Voice NFT'}
+                        {loading ? (
+                            <>
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                Minting...
+                            </>
+                        ) : (
+                            <>
+                                <Mic className="w-5 h-5" />
+                                Mint Voice NFT
+                            </>
+                        )}
                     </button>
                 </form>
+
+                {/* Footer */}
+                <div className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-400">
+                    <Shield className="w-4 h-4" />
+                    Secured by Solana blockchain
+                </div>
             </div>
         </div>
     );
