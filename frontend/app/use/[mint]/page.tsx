@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { SystemProgram, Transaction } from '@solana/web3.js';
@@ -9,17 +9,7 @@ import Link from 'next/link';
 import { AILicenseSummary } from '@/components/AILicenseSummary';
 import { AIGenerateButton } from '@/components/AIGenerateButton';
 import { VoiceLicenseData } from '@/lib/ai';
-
-// Demo data (would come from on-chain in production)
-const VOICE_DATA: Record<string, any> = {
-    'Voice1111111111111111111111111111111111111111': {
-        name: 'Epic Narrator',
-        creator: '7xKX...gAsU',
-        pricePerUse: 0.1,
-        licenseType: 1,
-        maxUses: 100,
-    },
-};
+import { voiceStorage, VoiceRecord } from '@/lib/supabase';
 
 export default function UsePage() {
     const params = useParams();
@@ -32,22 +22,77 @@ export default function UsePage() {
     const [lastTx, setLastTx] = useState('');
     const [totalUsed, setTotalUsed] = useState(0);
 
-    const voiceData = VOICE_DATA[mint] || {
+    // Voice data from Supabase
+    const [voiceData, setVoiceData] = useState<VoiceRecord | null>(null);
+    const [isLoadingVoice, setIsLoadingVoice] = useState(true);
+
+    // Audio playback state
+    const [isPlaying, setIsPlaying] = useState(false);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    // Fetch voice data from Supabase on mount
+    useEffect(() => {
+        async function fetchVoice() {
+            setIsLoadingVoice(true);
+            const voice = await voiceStorage.getByMint(mint);
+            if (voice) {
+                setVoiceData(voice);
+                setRemainingUses(voice.remaining_uses);
+                setTotalUsed(voice.total_uses);
+            }
+            setIsLoadingVoice(false);
+        }
+        fetchVoice();
+    }, [mint]);
+
+    // Default voice data fallback
+    const displayData = voiceData || {
         name: 'Voice NFT',
         creator: 'Unknown',
-        pricePerUse: 0.1,
-        licenseType: 1,
-        maxUses: 100,
+        creator_short: 'Unknown',
+        price_per_use: 0.1,
+        license_type: 1,
+        max_uses: 100,
+        remaining_uses: 3,
+        total_uses: 0,
+        audio_url: '',
     };
 
     // License data for AI components
     const licenseData: VoiceLicenseData = {
-        licenseType: voiceData.licenseType,
-        pricePerUse: voiceData.pricePerUse,
+        licenseType: displayData.license_type as 0 | 1,
+        pricePerUse: displayData.price_per_use,
         remainingUses: remainingUses,
-        resaleAllowed: false,
-        maxUses: voiceData.maxUses,
+        resaleAllowed: voiceData?.resale_allowed || false,
+        maxUses: displayData.max_uses,
         totalUses: totalUsed,
+    };
+
+    // Play the actual voice audio
+    const playVoiceAudio = () => {
+        if (!voiceData?.audio_url) {
+            alert('No audio file available for this voice.');
+            return;
+        }
+
+        if (audioRef.current) {
+            if (isPlaying) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+                setIsPlaying(false);
+            } else {
+                audioRef.current.play().catch((err) => {
+                    console.error('Audio playback error:', err);
+                    alert('Failed to play audio. Please try again.');
+                });
+                setIsPlaying(true);
+            }
+        }
+    };
+
+    // Handle audio ended
+    const handleAudioEnded = () => {
+        setIsPlaying(false);
     };
 
     const handleUseVoice = async () => {
@@ -81,14 +126,22 @@ export default function UsePage() {
             setTotalUsed(totalUsed + 1);
             setLastTx(signature);
 
-            // Speak confirmation using Text-to-Speech
-            if (typeof window !== 'undefined' && window.speechSynthesis) {
-                const utterance = new SpeechSynthesisUtterance(
-                    `Voice ${voiceData.name} activated. You have ${remainingUses - 1} uses remaining.`
-                );
-                utterance.rate = 1.0;
-                utterance.pitch = 1.0;
-                window.speechSynthesis.speak(utterance);
+            // Play the actual voice audio after successful use
+            if (voiceData?.audio_url && audioRef.current) {
+                audioRef.current.play().catch((err) => {
+                    console.error('Audio playback error:', err);
+                });
+                setIsPlaying(true);
+            } else {
+                // Fallback: Speak confirmation using Text-to-Speech
+                if (typeof window !== 'undefined' && window.speechSynthesis) {
+                    const utterance = new SpeechSynthesisUtterance(
+                        `Voice ${displayData.name} activated. You have ${remainingUses - 1} uses remaining.`
+                    );
+                    utterance.rate = 1.0;
+                    utterance.pitch = 1.0;
+                    window.speechSynthesis.speak(utterance);
+                }
             }
 
         } catch (error) {
@@ -132,11 +185,21 @@ export default function UsePage() {
                     🎤
                 </div>
 
+                {/* Hidden Audio Element */}
+                {voiceData?.audio_url && (
+                    <audio
+                        ref={audioRef}
+                        src={voiceData.audio_url}
+                        onEnded={handleAudioEnded}
+                        style={{ display: 'none' }}
+                    />
+                )}
+
                 <h1 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '8px' }}>
-                    {voiceData.name}
+                    {displayData.name}
                 </h1>
                 <p style={{ color: 'var(--muted)', marginBottom: '24px' }}>
-                    by {voiceData.creator}
+                    by {displayData.creator_short || displayData.creator}
                 </p>
 
                 {/* AI License Summary */}
@@ -147,6 +210,28 @@ export default function UsePage() {
                     <p style={{ color: 'var(--muted)', marginBottom: '8px' }}>Remaining Uses</p>
                     <div className="usage-remaining">{remainingUses}</div>
                 </div>
+
+                {/* Play Voice Audio Button - Plays the actual purchased audio */}
+                {voiceData?.audio_url && (
+                    <button
+                        className={`btn ${isPlaying ? 'btn-secondary' : 'btn-primary'}`}
+                        style={{
+                            width: '100%',
+                            marginBottom: '16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                        }}
+                        onClick={playVoiceAudio}
+                    >
+                        {isPlaying ? (
+                            <>🔊 Stop Audio</>
+                        ) : (
+                            <>🎧 Play Voice Audio</>
+                        )}
+                    </button>
+                )}
 
                 {/* Manual Use Button */}
                 <button

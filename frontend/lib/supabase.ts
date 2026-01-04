@@ -64,6 +64,27 @@ export const voiceStorage = {
         return data || [];
     },
 
+    // Get a single voice by mint address
+    async getByMint(mint: string): Promise<VoiceRecord | null> {
+        const supabase = getSupabase();
+        if (!supabase) {
+            return null;
+        }
+
+        const { data, error } = await supabase
+            .from('voices')
+            .select('*')
+            .eq('mint', mint)
+            .single();
+
+        if (error) {
+            console.error('Error fetching voice by mint:', error);
+            return null;
+        }
+
+        return data;
+    },
+
     // Save a new voice
     async save(voice: VoiceRecord): Promise<VoiceRecord | null> {
         const supabase = getSupabase();
