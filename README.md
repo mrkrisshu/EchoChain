@@ -332,6 +332,6 @@ MIT License - see [LICENSE](LICENSE) for details.
 </p>
 
 <p align="center">
-  <a href="https://echochain.vercel.app">🌐 Live Demo</a> •
+  <a href="https://echo-chain-liard.vercel.app/">🌐 Live Demo</a> •
   <a href="https://explorer.solana.com/?cluster=devnet">🔍 Solana Explorer</a>
 </p>
