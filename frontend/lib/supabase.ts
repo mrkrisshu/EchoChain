@@ -112,26 +112,31 @@ export const voiceStorage = {
         const supabase = getSupabase();
         if (!supabase) {
             console.log('Supabase not configured, skipping upload');
-            return null;
+            throw new Error('Supabase not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.');
         }
+
+        console.log('Uploading audio file:', fileName, 'Size:', file.size);
 
         const { data, error } = await supabase.storage
             .from('voice-samples')
             .upload(`voices/${fileName}`, file, {
                 cacheControl: '3600',
-                upsert: false
+                upsert: true // Allow overwriting existing files
             });
 
         if (error) {
             console.error('Error uploading audio:', error);
-            return null;
+            throw new Error(`Audio upload failed: ${error.message}`);
         }
+
+        console.log('Audio uploaded successfully:', data);
 
         // Get public URL
         const { data: urlData } = supabase.storage
             .from('voice-samples')
             .getPublicUrl(`voices/${fileName}`);
 
+        console.log('Audio URL:', urlData.publicUrl);
         return urlData.publicUrl;
     }
 };

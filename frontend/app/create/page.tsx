@@ -76,9 +76,21 @@ export default function CreatePage() {
             await connection.confirmTransaction(signature, 'confirmed');
 
             let audioUrl = '';
-            if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
-                const fileName = `${Date.now()}_${audioFile.name}`;
-                audioUrl = await voiceStorage.uploadAudio(audioFile, fileName) || '';
+            if (process.env.NEXT_PUBLIC_SUPABASE_URL && audioFile) {
+                try {
+                    const fileName = `${Date.now()}_${audioFile.name}`;
+                    const uploadedUrl = await voiceStorage.uploadAudio(audioFile, fileName);
+                    if (uploadedUrl) {
+                        audioUrl = uploadedUrl;
+                        console.log('Audio uploaded successfully:', audioUrl);
+                    } else {
+                        throw new Error('Upload returned empty URL');
+                    }
+                } catch (uploadError: any) {
+                    console.error('Audio upload failed:', uploadError);
+                    setError(`Audio upload failed: ${uploadError.message}. Voice will be created without audio.`);
+                    // Continue without audio - don't block the mint
+                }
             }
 
             const voiceData: VoiceRecord = {
