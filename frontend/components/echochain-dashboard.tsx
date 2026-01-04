@@ -101,7 +101,7 @@ const EarningsChart: FC<{ data: any[], title: string, dataKey: string, lineColor
                                 contentStyle={{ backgroundColor: '#1a1a1a', borderColor: '#333', borderRadius: '8px' }}
                                 itemStyle={{ color: '#fff' }}
                                 labelStyle={{ color: '#888' }}
-                                formatter={(value: number) => [`${value.toFixed(2)} SOL`, legendName]}
+                                formatter={(value: number | undefined) => [value !== undefined ? `${value.toFixed(2)} SOL` : '', legendName]}
                             />
                             <Legend wrapperStyle={{ color: '#888', paddingTop: '10px' }} />
                             <Line
